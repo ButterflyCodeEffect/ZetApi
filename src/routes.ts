@@ -1,12 +1,13 @@
 import * as express from 'express';
 
 export default class Routes {
+    private router: express.Router;
     
-    constructor (private router: express.Router) {
-        this.routes();
+    public constructor (router: express.Router) {
+        this.router = router;
     }
 
-    routes () {
+    public register (): void {
         this.router.get('/test', (req: express.Request, res: express.Response) => {
             res.json({message:"server started"});
         });

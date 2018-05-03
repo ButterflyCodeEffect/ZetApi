@@ -1,5 +1,7 @@
+import "reflect-metadata";
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
+import { createConnection } from 'typeorm';
 
 import Routes from './routes';
 
@@ -25,5 +27,6 @@ class Server {
     }
 }
 
+createConnection().catch(console.log);
 const server: Server = new Server();
 server.createServer();

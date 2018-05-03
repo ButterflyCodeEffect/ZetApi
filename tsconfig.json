@@ -3,7 +3,9 @@
         "target": "es6",
         "module": "commonjs",
         "declaration": true,
-        "outDir": "build"
+        "outDir": "build",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
     },
     "include": [
         "src/**/*.ts"

@@ -1,19 +1,31 @@
-import * as express from 'express';
+
+import {Request, Response, Router} from "express";
+import UserController from './controllers/UserController'
 
 export default class Routes {
-    private router: express.Router;
+    private router: Router;
+    private userController: UserController;
     
-    public constructor (router: express.Router) {
+    public constructor (router: Router) {
         this.router = router;
+        this.userController = new UserController();    
+        
     }
 
     public register (): void {
-        this.router.get('/test', (req: express.Request, res: express.Response) => {
-            res.json({message:"server started"});
+        
+        this.router.get('/users', (req: Request, res: Response) => {
+            this.userController.getAllUsers().then((result)=>{
+                res.json(result)
+            }).catch((err)=>{
+                res.json({error: err})
+            })
         });
 
-        this.router.get('/test2', (req: express.Request, res: express.Response) => {
-            res.json({message:"server started2"});
+        this.router.get('/test2', (req: Request, res: Response) => {
+            this.userController.createUser().then(r => {
+                res.json("success")
+            })
         });
     }
 }

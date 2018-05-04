@@ -4,12 +4,12 @@ export const Routes = [{
     method: "get",
     route: "/users",
     controller: UserController,
-    action: "all"
+    action: "getAll"
 }, {
-    method: "get",
-    route: "/users/:id",
+    method: "post",
+    route: "/user/create",
     controller: UserController,
-    action: "one"
+    action: "createUser"
 }, {
     method: "post",
     route: "/users",

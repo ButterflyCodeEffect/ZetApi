@@ -6,13 +6,57 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({
+        nullable: false
+    })
+    userName: string;
+
+    @Column({
+        nullable: false
+    })
+    password: string;
+
+    @Column({
+        nullable: false
+    })
+    email: string;
+
+    @Column({
+        nullable: true
+    })
     firstName: string;
 
-    @Column()
+    @Column({
+        nullable: true
+    })
     lastName: string;
 
-    @Column()
-    age: number;
+    @Column('datetime', {
+        nullable: false
+    })
+    birthDate: Date;
+
+    @Column('datetime', {
+        nullable: false,
+        default: () => "CURRENT_TIMESTAMP"
+    })
+    createDate: Date;
+
+    @Column('datetime', {
+        nullable: false,
+        default: () => "CURRENT_TIMESTAMP"
+    })
+    updateDate: Date;
+
+    @Column('datetime', {
+        nullable: true
+    })
+    deletedDate: Date;
+
+    @Column({
+        nullable: false,
+        default: "active"
+    })
+    status: string;
 
 }

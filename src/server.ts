@@ -1,29 +1,43 @@
 import "reflect-metadata";
-import * as express from 'express';
-import * as bodyParser from 'body-parser';
-import { createConnection } from 'typeorm';
+import {createConnection} from "typeorm";
+import * as express from "express";
+import * as bodyParser from "body-parser";
+import {Request, Response} from "express";
+import {Routes} from "./routes";
 
-import Routes from './routes';
 
 class Server {
     private port: number;
     private router: express.Router;
     private app: express.Application;
-    private routes: Routes;
+    private appRoutes: Array<any>;
 
     public constructor() {
         this.app = express();
         this.port = parseInt(process.env.PORT) || 8080;
         this.router = express.Router();
-        this.routes = new Routes(this.router);
+        this.appRoutes = Routes
     }
 
     public createServer(): void {
         this.app.use(bodyParser.urlencoded({extended:true}));
         this.app.use(bodyParser.json());
-        this.app.use('/api', this.router);
-        this.routes.register();
+        this.registerRoutes();
         this.app.listen(this.port);
+    }
+
+    private registerRoutes () {
+        this.appRoutes.forEach(route => {
+            (this.app as any)[route.method](route.route, (req: Request, res: Response, next: Function) => {
+                const result = (new (route.controller as any))[route.action](req, res, next);
+                if (result instanceof Promise) {
+                    result.then(result => result !== null && result !== undefined ? res.send(result) : undefined);
+    
+                } else if (result !== null && result !== undefined) {
+                    res.json(result);
+                }
+            });
+        });
     }
 }
 
@@ -31,3 +45,5 @@ createConnection().then(()=>{
     const server: Server = new Server();
     server.createServer();
 }).catch(console.log);
+
+

@@ -27,6 +27,7 @@ class Server {
     }
 }
 
-createConnection().catch(console.log);
-const server: Server = new Server();
-server.createServer();
+createConnection().then(()=>{
+    const server: Server = new Server();
+    server.createServer();
+}).catch(console.log);

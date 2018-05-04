@@ -1,11 +1,17 @@
-import { getRepository } from 'typeorm';
+import { Repository, getConnectionManager } from 'typeorm';
 import User from '../entity/User';
 
 export default class UserController {
 
+    private userRepository: Repository<User>;
+
+    public constructor () {
+        this.userRepository = getConnectionManager().get().getRepository(User);
+    }
+
     public getAllUsers () {
         return new Promise( (resolve, reject) => {
-            resolve(getRepository<User>(User).find())
+            resolve(this.userRepository.find())
         });
     }
 
@@ -14,8 +20,7 @@ export default class UserController {
         user.firstName = "Ciuri";
         user.lastName = "Buri";
         user.age = 123;
-        
-        return getRepository<User>(User).save(user);
+        return this.userRepository.save(user);
         
     }
 

@@ -1,10 +1,19 @@
-import { getRepository } from "typeorm";
+import { getRepository, Repository } from "typeorm";
 import { NextFunction, Request, Response } from "express";
 import { User } from "../entity/User";
+import UserValidator from "../helpers/UserValidator";
+import toast from "../helpers/errorHandler";
+import { EDESTADDRREQ } from "constants";
 
 export class UserController {
 
-    private userRepository = getRepository(User);
+    private userRepository: Repository<User>;
+    private userValidator: UserValidator;
+
+    public constructor () {
+        this.userRepository = getRepository(User);
+        this.userValidator = new UserValidator(this.userRepository);
+    }
 
     async getAll () {
         return this.userRepository.find();
@@ -12,32 +21,26 @@ export class UserController {
 
     async createUser (req: Request, res: Response) {
 
-        let user = new User();
-        user.userName = req.body.userName;
-        user.password = req.body.password;
-        user.email = req.body.email;
-        user.firstName = req.body.firstName;
-        user.lastName = req.body.lastName;
-        user.birthDate = new Date(req.body.birthDate);
-        return this.userRepository.save(user);
+        this.userValidator.isValid(req.body).then(errors => {            
+            if (errors.length) {
+                toast(errors, res);
+            } else {
+                let user = this.createUserObject(req.body);
+                this.userRepository.save(user).then(results => {
+                    res.json(results);
+                });
+            }
+        })
     }
 
-
-
-    // async all(request: Request, response: Response, next: NextFunction) {
-    //     return this.userRepository.find();
-    // }
-
-    // async one(request: Request, response: Response, next: NextFunction) {
-    //     return this.userRepository.findOne(request.params.id);
-    // }
-
-    // async save(request: Request, response: Response, next: NextFunction) {
-    //     return this.userRepository.save(request.body);
-    // }
-
-    // async remove(request: Request, response: Response, next: NextFunction) {
-    //     // await this.userRepository.removeById(request.params.id);
-    // }
-
+    private createUserObject (data: any) : User {
+        let user = new User();
+        user.userName = data.userName;
+        user.password = data.password;
+        user.email = data.email;
+        user.firstName = data.firstName;
+        user.lastName = data.lastName;
+        user.birthDate = new Date(data.birthDate);
+        return user;
+    }
 }

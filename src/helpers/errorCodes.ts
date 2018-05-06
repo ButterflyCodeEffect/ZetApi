@@ -50,7 +50,19 @@ export const Errors = {
     },
 
     INVALID_BIRTHDATE_FORMAT : {
-        code : 9,
+        code : 10,
         message : "invalid birthdate format"
+    },
+
+    INVALID_PASSWORD_FORMAT : {
+        code: 11,
+        message: `At least 8 characters, Must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number, Can contain special characters`
+    },
+
+    INVALID_USERNAME_FORMAT : {
+        code: 12,
+        message: `Usernames can contain characters a-z, 0-9, underscores and periods.
+                  The username cannot start with a period nor end with a period.
+                  It must also not have more than one period sequentially.`
     }
 }

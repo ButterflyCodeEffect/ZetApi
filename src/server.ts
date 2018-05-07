@@ -4,7 +4,7 @@ import * as express from "express";
 import * as bodyParser from "body-parser";
 import {Request, Response} from "express";
 import {Routes} from "./routes";
-
+import MiddlewareHandler from "./helpers/middlewareHandler";
 
 class Server {
     private port: number;
@@ -26,9 +26,12 @@ class Server {
         this.app.listen(this.port);
     }
 
+    // dont touch this, only god and satan knows what's happening here
+    // all you need to know mortal, is that the routes work here
     private registerRoutes () {
+        const middleware = new MiddlewareHandler();
         this.appRoutes.forEach(route => {
-            (this.app as any)[route.method](route.route, (req: Request, res: Response, next: Function) => {
+            (this.app as any)[route.method](route.route, middleware[route.middleware].bind(middleware), (req: Request, res: Response, next: Function) => {
                 const result = (new (route.controller as any))[route.action](req, res, next);
                 if (result instanceof Promise) {
                     result.then(result => result !== null && result !== undefined ? res.send(result) : undefined);

@@ -50,7 +50,7 @@ export default class UserValidator {
 
     public async isUpdateValid (user: any) {
         if(this.isParamsValid(user)) {
-
+            
         }
     }
 

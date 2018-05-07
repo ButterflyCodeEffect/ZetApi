@@ -4,16 +4,13 @@ import { User } from "../entity/User";
 import UserValidator from "../helpers/UserValidator";
 import toast from "../helpers/errorHandler";
 import { hash }  from 'bcrypt';
-import { EDESTADDRREQ } from "constants";
 
 export class UserController {
 
     private userRepository: Repository<User>;
-    private userValidator: UserValidator;
 
     public constructor () {
         this.userRepository = getRepository(User);
-        this.userValidator = new UserValidator(this.userRepository);
     }
 
     async getAll () {
@@ -21,23 +18,16 @@ export class UserController {
     }
 
     async createUser (req: Request, res: Response) {
-        this.userValidator.isCreateValid(req.body).then(errors => {            
-            if (errors.length) {
-                toast(errors, res);
-            } else {
-                this.createUserObject(req.body).then(user => {
-                    this.userRepository.save(user).then(results => {
-                        res.json(results);
-                    });
-                });
-            }
-        })
+        this.createUserObject(req.body).then(user => {
+            this.userRepository.save(user).then(results => {
+                res.json(results);
+            });
+        });
     }
 
-    async updateUser (req: Request, res: Response) {
-        this.userValidator.isUpdateValid(req.body).then(errors => {
-            
-        })
+    async updateUser (req: Request, res: Response, next) {
+        console.log("enered in update");
+        res.json("meh")
     }   
 
     private async createUserObject (data: any) : Promise<User> {

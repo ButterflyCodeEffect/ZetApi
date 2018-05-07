@@ -30,7 +30,7 @@ export default class UserValidator {
         this.userRepository = repository;
     }
 
-    public async isCreateValid (user: any) {
+    public isCreateValid (user: any) {
 
         const promises: Array<Promise<object>> = [
             this.checkValueUnique({email: user.email}, Errors.EMAIL_EXISTS),
@@ -41,7 +41,7 @@ export default class UserValidator {
             this.checkValueFormat(user.userName, this.userNameRegex, Errors.INVALID_USERNAME_FORMAT)
         ];
 
-        return await Promise.all(promises).then(results => {
+        return Promise.all(promises).then(results => {
             return results.filter(result => {
                 return result !== null;
             })

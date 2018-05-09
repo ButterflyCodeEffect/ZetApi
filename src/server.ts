@@ -10,13 +10,13 @@ class Server {
     private port: number;
     private router: express.Router;
     private app: express.Application;
-    private appRoutes: Array<any>;
+    private appRoutes: Routes;
 
     public constructor() {
         this.app = express();
         this.port = parseInt(process.env.PORT) || 8080;
         this.router = express.Router();
-        this.appRoutes = Routes
+        this.appRoutes = new Routes(this.router);
     }
 
     public createServer(): void {
@@ -26,21 +26,8 @@ class Server {
         this.app.listen(this.port);
     }
 
-    // dont touch this, only god and satan knows what's happening here
-    // all you need to know mortal, is that the routes work here
     private registerRoutes () {
-        const middleware = new MiddlewareHandler();
-        this.appRoutes.forEach(route => {
-            (this.app as any)[route.method](route.route, middleware[route.middleware].bind(middleware), (req: Request, res: Response, next: Function) => {
-                const result = (new (route.controller as any))[route.action](req, res, next);
-                if (result instanceof Promise) {
-                    result.then(result => result !== null && result !== undefined ? res.send(result) : undefined);
-    
-                } else if (result !== null && result !== undefined) {
-                    res.json(result);
-                }
-            });
-        });
+        this.appRoutes.register();
     }
 }
 

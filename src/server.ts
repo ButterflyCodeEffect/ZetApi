@@ -8,15 +8,13 @@ import MiddlewareHandler from "./helpers/middlewareHandler";
 
 class Server {
     private port: number;
-    private router: express.Router;
     private app: express.Application;
     private appRoutes: Routes;
 
     public constructor() {
         this.app = express();
         this.port = parseInt(process.env.PORT) || 8080;
-        this.router = express.Router();
-        this.appRoutes = new Routes(this.router);
+        this.appRoutes = new Routes(this.app);
     }
 
     public createServer(): void {

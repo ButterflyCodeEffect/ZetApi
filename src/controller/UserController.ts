@@ -13,8 +13,10 @@ export class UserController {
         this.userRepository = getRepository(User);
     }
 
-    async getAll () {
-        return this.userRepository.find();
+    async getAll (req: Request, res: Response) {
+        console.log("test");
+        res.json("test");
+        //return this.userRepository.find();
     }
 
     async createUser (req: Request, res: Response) {

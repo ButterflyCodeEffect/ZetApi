@@ -1,47 +1,47 @@
-import { getRepository, Repository } from "typeorm";
-import { NextFunction, Request, Response } from "express";
-import { User } from "../entity/User";
+import { Controller } from "./Controller";
+import { Application, Request, Response } from "express";
+import { UserService } from "../services/UserService";
 import UserValidator from "../helpers/UserValidator";
-import toast from "../helpers/errorHandler";
-import { hash }  from 'bcrypt';
+import { User } from "../entity/User";
 
-export class UserController {
+export class UserController implements Controller {
+    private userService: UserService;
+    private userValidator: UserValidator;
 
-    private userRepository: Repository<User>;
-
-    public constructor () {
-        this.userRepository = getRepository(User);
+    public constructor() {
+        this.userService = new UserService();
+        this.userValidator = new UserValidator();
     }
 
-    async getAll (req: Request, res: Response) {
-        console.log("test");
-        res.json("test");
-        //return this.userRepository.find();
+    public initialize(application: Application): void {
+        application.get("/users", this.listUsers);
+        application.get("/user/:id", this.getUser);
+        application.post("/user", this.userValidator.isCreateValid, this.createUser);
+        application.put("/user/:id", this.userValidator.isUpdateValid, this.updateUser);
+        application.delete("/user/:id", this.deleteUser);
     }
 
-    async createUser (req: Request, res: Response) {
-        this.createUserObject(req.body).then(user => {
-            this.userRepository.save(user).then(results => {
-                res.json(results);
-            });
+    private listUsers(request: Request, response: Response): void {
+        console.log("UserController::listUsers");
+        console.log(this.userService);
+        this.userService.listUsers().then(result => {
+            response.json(result);
         });
     }
 
-    async updateUser (req: Request, res: Response, next) {
-        console.log("enered in update");
-        res.json("meh")
-    }   
+    private async getUser(request: Request, response: Response): Promise<void> {
+        response.json(await this.userService.getUser({id: request.params.id}));
+    }
 
-    private async createUserObject (data: any) : Promise<User> {
-        let user = new User();
-        user.userName = data.userName;
-        user.email = data.email;
-        user.firstName = data.firstName;
-        user.lastName = data.lastName;
-        user.birthDate = new Date(data.birthDate);
-        await hash(data.password, 10).then(hash => {
-            user.password = hash;
-        });
-        return user;
+    private async createUser(request: Request, response: Response): Promise<void> {
+        response.json(await this.userService.createUser(request.body));
+    }
+
+    private async updateUser(request: Request, response: Response): Promise<void> {
+        response.json(await this.userService.updateUser(request.body));
+    }
+
+    private async deleteUser(request: Request, response: Response): Promise<void> {
+        response.json(await this.userService.deleteUser(request.params.id));
     }
 }

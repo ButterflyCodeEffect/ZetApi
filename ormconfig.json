@@ -3,7 +3,7 @@
     "host": "localhost",
     "port": 3306,
     "username": "root",
-    "password": "951623",
+    "password": "",
     "database": "zetapi",
     "synchronize": true,
     "logging": false,

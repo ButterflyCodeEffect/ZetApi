@@ -1,31 +1,28 @@
 import "reflect-metadata";
-import {createConnection} from "typeorm";
-import * as express from "express";
-import * as bodyParser from "body-parser";
+import { createConnection } from "typeorm";
 import {Request, Response} from "express";
-import {Routes} from "./routes";
-import MiddlewareHandler from "./helpers/middlewareHandler";
+import * as bodyParser from "body-parser";
+import * as express from "express";
+
+import { CONTROLLERS } from "./controller/Bootstrap";
+
 
 class Server {
     private port: number;
     private app: express.Application;
-    private appRoutes: Routes;
 
     public constructor() {
         this.app = express();
         this.port = parseInt(process.env.PORT) || 8080;
-        this.appRoutes = new Routes(this.app);
     }
 
     public createServer(): void {
         this.app.use(bodyParser.urlencoded({extended:true}));
         this.app.use(bodyParser.json());
-        this.registerRoutes();
+        CONTROLLERS.forEach(controller => {
+            controller.initialize(this.app);
+        });
         this.app.listen(this.port);
-    }
-
-    private registerRoutes () {
-        this.appRoutes.register();
     }
 }
 

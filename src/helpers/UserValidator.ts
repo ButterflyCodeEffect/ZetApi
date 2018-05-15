@@ -1,6 +1,7 @@
 import { Repository } from "typeorm";
 import { User } from '../entity/User';
 import { Errors } from './errorCodes';
+import { UserService } from "../services/UserService";
 
 export default class UserValidator {
 
@@ -24,10 +25,10 @@ export default class UserValidator {
      */
     private readonly userNameRegex: RegExp = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{5,}$/;
 
-    private userRepository: Repository<User>;
+    private userService: UserService;
 
-    public constructor (repository: Repository<User>) {
-        this.userRepository = repository;
+    public constructor () {
+        this.userService = new UserService();
     }
 
     public isCreateValid (user: any) {
@@ -76,13 +77,13 @@ export default class UserValidator {
      * @description
      * checks if the value already exists in the database
      * 
-     * @param val 
+     * @param params 
      * @param err error object from errorCodes
      */
-    private async checkValueUnique (val: object, err: object) {
-        return await this.userRepository.findOne(val).then(result => {
+    private async checkValueUnique(params: object, err: object) {
+        return await this.userService.getUser(params).then(result => {
             return result ? err : null;            
-        })
+        });
     }
 
     

@@ -64,5 +64,15 @@ export const Errors = {
         message: `Usernames can contain characters a-z, 0-9, underscores and periods.
                   The username cannot start with a period nor end with a period.
                   It must also not have more than one period sequentially.`
-    }
+    },
+
+    USER_NOT_EXISTS : {
+        code : 13,
+        message : "User does not exist"
+    },
+    
+    IVALID_PARAMS_COUNT : {
+        code : 13,
+        message : "Ivalid parametters count"
+    },
 }

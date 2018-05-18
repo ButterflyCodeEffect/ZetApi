@@ -2,8 +2,13 @@ import { Repository } from "typeorm";
 import { User } from '../entity/User';
 import { Errors } from './errorCodes';
 import { UserService } from "../services/UserService";
+import { Request } from "express-serve-static-core";
+import { Response } from "express";
 
 export default class UserValidator {
+
+    private readonly updateParams: string[] = ["id", "email", "firstName", "lastName", "birthDate"];
+    private readonly createParams: string[] = [ "email", "firstName", "lastName", "birthDate", "password", "userName"];
 
     // Regex for validating the email format
     private readonly emailRegex:RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -23,7 +28,7 @@ export default class UserValidator {
      *  The username cannot start with a period nor end with a period.
      *  It must also not have more than one period sequentially. 
      */
-    private readonly userNameRegex: RegExp = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{5,}$/;
+    private readonly userNameRegex: RegExp = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{4,}$/;
 
     private userService: UserService;
 
@@ -31,36 +36,69 @@ export default class UserValidator {
         this.userService = new UserService();
     }
 
-    public isCreateValid (user: any) {
-
-        const promises: Array<Promise<object>> = [
-            this.checkValueUnique({email: user.email}, Errors.EMAIL_EXISTS),
-            this.checkValueUnique({userName: user.userName}, Errors.USERNAME_EXISTS),
-            this.checkValueFormat(user.email, this.emailRegex, Errors.INVALID_EMAIL),
-            this.checkValueFormat(user.birthDate, this.dateRegex, Errors.INVALID_BIRTHDATE_FORMAT),
-            this.checkValueFormat(user.password, this.passwordRegex, Errors.INVALID_PASSWORD_FORMAT),
-            this.checkValueFormat(user.userName, this.userNameRegex, Errors.INVALID_USERNAME_FORMAT)
-        ];
-
-        return Promise.all(promises).then(results => {
-            return results.filter(result => {
-                return result !== null;
-            })
-        });
+    public isCreateValid (req: Request, res: Response, next: Function) {
+        const user = req.body;
+        if (this.isParamsValid(user, this.createParams)){
+            const promises: Promise<object>[] = [
+                this.checkValueUnique({email: user.email}, Errors.EMAIL_EXISTS),
+                this.checkValueUnique({userName: user.userName}, Errors.USERNAME_EXISTS),
+                this.checkValueFormat(user.email, this.emailRegex, Errors.INVALID_EMAIL),
+                this.checkValueFormat(user.birthDate, this.dateRegex, Errors.INVALID_BIRTHDATE_FORMAT),
+                this.checkValueFormat(user.password, this.passwordRegex, Errors.INVALID_PASSWORD_FORMAT),
+                this.checkValueFormat(user.userName, this.userNameRegex, Errors.INVALID_USERNAME_FORMAT)
+            ];
+    
+            Promise.all(promises).then(results => {
+                let errors = results.filter(result => {
+                    return result !== null;
+                })
+                errors.length ? res.json(errors) : next();
+            });
+        } else {
+            res.json(Errors.IVALID_PARAMS_COUNT)
+        }
+        
     }
 
-    public async isUpdateValid (user: any) {
-        if(this.isParamsValid(user)) {
-            
+    public isUpdateValid (req: Request, res: Response, next: Function) {
+        const user = req.body;
+        if (this.isParamsValid(user, this.updateParams)){
+
+            this.checkIfUserExist(user.id).then((userEntity: User) => {
+                const promises: Promise<object>[] = [
+                    this.checkValueFormat(user.email, this.emailRegex, Errors.INVALID_EMAIL),
+                    this.checkValueFormat(user.birthDate, this.dateRegex, Errors.INVALID_BIRTHDATE_FORMAT)
+                ];
+
+                if (userEntity.email !== user.email) {
+                    promises.push(this.checkValueUnique({email: user.email}, Errors.EMAIL_EXISTS))
+                }
+        
+                Promise.all(promises).then(results => {
+                    let errors = results.filter(result => {
+                        return result !== null;
+                    })
+                    errors.length ? res.json(errors) : next();
+                });
+
+            }).catch(err => {
+                res.json(err);
+            })
+
+        } else {
+            res.json(Errors.IVALID_PARAMS_COUNT)
         }
     }
 
-    private isParamsValid (user: any) {
-        const validFields: Array<string> = ["id", "userName", "password", "email", "firstName", "lastName", "birthDate"];
+    private isParamsValid (user: any, expectedParams: string[]): boolean {
+        if (Object.keys(user).length !== expectedParams.length) {
+            return false;
+        }
         return Object.keys(user).every(key => {
-            return (validFields.indexOf(key) !== -1) ? true : false;
+            return (expectedParams.indexOf(key) !== -1) ? true : false;
         })
     }
+
 
     /**
      * @description
@@ -69,7 +107,7 @@ export default class UserValidator {
      * @param regex 
      * @param err error object from errorCodes
      */
-    private async checkValueFormat (val: string, regex: RegExp, err: object) {
+    private async checkValueFormat (val: string, regex: RegExp, err: object): Promise<object> {
         return await regex.test(val) ? null : err;
     }
 
@@ -80,10 +118,19 @@ export default class UserValidator {
      * @param params 
      * @param err error object from errorCodes
      */
-    private async checkValueUnique(params: object, err: object) {
+    private async checkValueUnique(params: object, err: object, ): Promise<object> {
         return await this.userService.getUser(params).then(result => {
             return result ? err : null;            
         });
+    }
+
+
+    private checkIfUserExist (id: number): Promise<object> {
+        return new Promise((resolve, reject) => {
+            this.userService.getUser({id:id, deletedDate: null}).then(result => {
+                 result ? resolve(result) : reject(Errors.USER_NOT_EXISTS);            
+            });
+        }) 
     }
 
     

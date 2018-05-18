@@ -54,8 +54,7 @@ export class User {
     deletedDate: Date;
 
     @Column({
-        nullable: false,
-        default: "active"
+        nullable: true,
     })
     status: string;
 

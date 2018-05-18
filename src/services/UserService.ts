@@ -2,12 +2,9 @@ import { User } from "../entity/User";
 import { Repository, getRepository, DeleteResult } from "typeorm";
 
 export class UserService {
-    public constructor() {
-        console.log("UserService::constructor");
-    }
+    public constructor() {}
 
     public async listUsers(): Promise<User[]> {
-        console.log("UserService::listUsers");
         let userRepository: Repository<User> = getRepository(User);
         return await userRepository.find();
     }
@@ -29,11 +26,14 @@ export class UserService {
         entity.firstName = user.firstName;
         entity.lastName = user.lastName;
         entity.email = user.email;
+        entity.password = user.password;
         return await userRepository.save(entity);
     }
 
-    public async deleteUser(id: number): Promise<any> {
+    public async deleteUser(id: number): Promise<User> {
         let userRepository: Repository<User> = getRepository(User);
-        return await userRepository.delete({id: id});
+        let entity = await userRepository.findOne({id: id});
+        entity.deletedDate = new Date();
+        return await userRepository.save(entity);
     }
 }

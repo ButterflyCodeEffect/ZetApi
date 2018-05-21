@@ -8,7 +8,7 @@ import { Response } from "express";
 export default class UserValidator {
 
     private readonly updateParams: string[] = ["id", "email", "firstName", "lastName", "birthDate"];
-    private readonly createParams: string[] = [ "email", "firstName", "lastName", "birthDate", "password", "userName"];
+    private readonly createParams: string[] = [ "email", "firstName", "lastName", "birthDate", "password", "rePassword", "userName"];
 
     // Regex for validating the email format
     private readonly emailRegex:RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -40,6 +40,7 @@ export default class UserValidator {
         const user = req.body;
         if (this.isParamsValid(user, this.createParams)){
             const promises: Promise<object>[] = [
+                this.checkIfPasswordsMatch(user.password, user.rePassword, Errors.PASSWORDS_MISSMATCH),
                 this.checkValueUnique({email: user.email}, Errors.EMAIL_EXISTS),
                 this.checkValueUnique({userName: user.userName}, Errors.USERNAME_EXISTS),
                 this.checkValueFormat(user.email, this.emailRegex, Errors.INVALID_EMAIL),
@@ -131,6 +132,10 @@ export default class UserValidator {
                  result ? resolve(result) : reject(Errors.USER_NOT_EXISTS);            
             });
         }) 
+    }
+
+    private async checkIfPasswordsMatch (p1: string, p2: string, err: object): Promise<object> {
+        return await p1 === p2 ? null : err;
     }
 
     

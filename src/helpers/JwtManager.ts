@@ -1,38 +1,32 @@
-import { sign as jwtSign, verify as jwtVerify }  from 'jsonwebtoken'
-import { Request, Response } from 'express';
+import { Errors } from './Errors';
 
+import { Request, Response } from 'express';
+import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
 
 export class JwtManager {
-
     private readonly JWT_EXPIRE: number = 1440; // 24 H
     private readonly SECRET_KEY: string = "super secret key";
 
-    sign (payload: object, expireTime?: number) {
-        if (payload) {
-            let expire = expireTime ? expireTime  : this.JWT_EXPIRE;     
-            return jwtSign(payload, this.SECRET_KEY, {
-                expiresIn: expire 
-            });
-        }
-        return null;    
+    public sign(payload: object, expireTime?: number): string {
+        let expire = expireTime ? expireTime : this.JWT_EXPIRE;
+        return jwtSign(payload, this.SECRET_KEY, {
+            expiresIn: expire
+        });
     }
 
-    verify (req: Request, res: Response, next) {
-        var token = req.body.token || req.query.token || req.headers['x-access-token'];  
+    public verify(request: Request, response: Response, next: Function): void {
+        var token = request.body.token || request.query.token || request.headers["x-access-token"];
         if (token) {
-            jwtVerify(token, this.SECRET_KEY, function(err, decoded) {
-                if(err) {
-                    res.json("inavild token")
-                }else {
-                    req.params.jwtDecoded = decoded;
+            jwtVerify(token, this.SECRET_KEY, function (error, decoded) {
+                if (error) {
+                    response.json(Errors.IVALID_JWT_TOKEN)
+                } else {
+                    request.params.jwtDecoded = decoded;
                     next();
-                }                  
-            });  
-        }else{
-            res.json("inavild token")
+                }
+            });
+        } else {
+            response.json(Errors.MISSING_JWT_TOKEN);
         }
-
-        next();
-        
     }
 }

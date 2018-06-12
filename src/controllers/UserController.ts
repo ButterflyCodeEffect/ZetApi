@@ -1,9 +1,11 @@
+import { Application, Request, Response } from "express";
+
 import { Server } from "../Server";
 import { Controller } from "./Controller";
 import { UserService } from "../Services/UserService";
 import { UserValidator } from "../Validators/UserValidator";
 
-import { Application, Request, Response } from "express";
+
 
 export class UserController implements Controller {
     private readonly application: Application;

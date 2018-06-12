@@ -10,6 +10,7 @@
         "@types/express": "^4.11.1",
         "@types/jsonwebtoken": "^7.2.7",
         "@types/node": "^8.0.29",
+        "@types/reflect-metadata": "^0.1.0",
         "@types/socket.io": "^1.4.34",
         "ts-node": "3.3.0",
         "typescript": "2.5.2"

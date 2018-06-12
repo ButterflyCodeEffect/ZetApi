@@ -1,7 +1,8 @@
-import { Errors } from './Errors';
-
 import { Request, Response } from 'express';
 import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
+
+import { Errors } from './Errors';
+
 
 export class JwtManager {
     private readonly JWT_EXPIRE: number = 1440; // 24 H

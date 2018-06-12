@@ -1,14 +1,15 @@
-import { Errors } from "./Helpers/Errors";
-import { CONTROLLERS } from "./Controllers/Index";
-import { JwtManager } from "./helpers/JwtManager";
-import { Controller } from "./controllers/Controller";
-
+import 'reflect-metadata';
 import { Request, Response } from "express";
 import { createConnection } from "typeorm";
 import * as bodyParser from "body-parser";
 import * as socketIo from "socket.io"
 import * as express from "express";
 import * as http from "http";
+
+import { Errors } from "./Helpers/Errors";
+import { CONTROLLERS } from "./Controllers/Index";
+import { JwtManager } from "./helpers/JwtManager";
+import { Controller } from "./controllers/Controller";
 
 export class Server {
     private port: number;

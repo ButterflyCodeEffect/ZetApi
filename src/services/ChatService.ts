@@ -1,7 +1,7 @@
+import { Server } from "socket.io";
+
 import { Errors } from "../Helpers/Errors"
 import { JwtManager } from "../Helpers/JwtManager";
-
-import { Server } from "socket.io";
 
 export class ChatService {
     private readonly jwtManager: JwtManager;

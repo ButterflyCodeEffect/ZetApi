@@ -1,9 +1,9 @@
+import { hash, compare } from 'bcrypt';
+import { Repository, getRepository } from "typeorm";
+
 import { Errors } from "../Helpers/Errors";
 import { JwtManager } from "../Helpers/JwtManager";
 import { UserEntity } from "../entities/UserEntity";
-
-import { hash, compare } from 'bcrypt';
-import { Repository, getRepository } from "typeorm";
 
 export class UserService {
     private readonly jwtManager: JwtManager;

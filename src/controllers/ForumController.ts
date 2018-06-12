@@ -1,9 +1,11 @@
+import { Application, Request, Response } from "express";
+
 import { Server } from "../Server";
 import { Controller } from "./Controller";
 import { ForumService } from "../services/ForumService";
 import { ForumValidator } from "../validators/ForumValidator";
 
-import { Application, Request, Response } from "express";
+
 
 export class ForumController implements Controller {
     private readonly application: Application;

@@ -1,10 +1,11 @@
+import { Application } from "express";
+import * as socketIo from "socket.io"
+
 import { Server } from "../Server";
 import { Controller } from "./Controller";
 import { ChatService } from "../services/ChatService";
 import { ChatValidator } from "../validators/ChatValidator";
 
-import { Application } from "express";
-import * as socketIo from "socket.io"
 
 export class ChatController implements Controller {
     private readonly chatValidator: ChatValidator;

@@ -1,8 +1,8 @@
+import { Request, Response } from "express";
+
 import { Errors } from "../Helpers/Errors";
 import { UserEntity } from "../entities/UserEntity";
 import { UserService } from "../services/UserService";
-
-import { Request, Response } from "express";
 
 export class UserValidator {
     private readonly updateParams: string[] = ["id", "email", "firstName", "lastName", "birthDate"];

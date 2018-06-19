@@ -44,10 +44,20 @@ export class Server {
     public createServer(): void {
         this.application.use(bodyParser.urlencoded({ extended: true }));
         this.application.use(bodyParser.json());
+        
+        this.application.use((request: Request, response: Response, next: Function) => {
+            response.header("Access-Control-Allow-Origin", "*");
+            response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+            next();
+        });
+
         CONTROLLERS.forEach(controller => {
             let item: Controller = new controller(this);
             item.register();
         });
+
+        
+
         this.application.use((error: any, request: Request, response: Response, next: Function) =>
         {
             console.log(error);
